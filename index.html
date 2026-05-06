@@ -117,17 +117,50 @@
   }
   .btn-add:hover { box-shadow: 0 4px 14px rgba(0,119,182,0.45); transform: translateY(-1px); }
   .btn-add:active { transform: translateY(0); }
-  .btn-clear {
+  .btn-secondary {
     padding: 8px 14px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;
     font-size: 13px; font-weight: 500; font-family: inherit;
     background: white; color: #555;
     transition: background 0.15s, border-color 0.15s;
   }
-  .btn-clear:hover { background: #fafafa; border-color: #bbb; }
+  .btn-secondary:hover { background: #fafafa; border-color: #bbb; }
+
+  /* ── Sync status ── */
+  .sync-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px; font-size: 12px; color: #888;
+  }
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #ccc;
+    transition: background 0.3s; flex-shrink: 0;
+  }
+  .sync-dot.syncing { background: #f0a500; animation: pulse 1s infinite; }
+  .sync-dot.ok { background: #2d9e5e; }
+  .sync-dot.error { background: #e74c3c; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .btn-refresh {
+    font-size: 11px; padding: 2px 8px; border: 1px solid #ddd;
+    border-radius: 5px; background: white; cursor: pointer; font-family: inherit; color: #555;
+  }
+  .btn-refresh:hover { background: #f4f4f4; }
+
+  /* ── Setup banner ── */
+  .setup-banner {
+    background: #fff8e6; border: 1.5px solid #f0c040; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #7a5500;
+  }
+  .setup-banner.hidden { display: none; }
+  .setup-banner strong { display: block; margin-bottom: 4px; }
+  .btn-setup {
+    margin-top: 8px; padding: 7px 14px; background: #f0a500; color: white;
+    border: none; border-radius: 7px; cursor: pointer; font-size: 12px;
+    font-weight: 600; font-family: inherit;
+  }
+  .btn-setup:hover { background: #d4920a; }
 
   /* ── Row count badge ── */
   .row-count {
-    font-size: 12px; color: #888; margin-left: 4px;
+    font-size: 12px; color: #888;
     background: #e8eaed; padding: 3px 9px; border-radius: 20px; font-weight: 500;
   }
 
@@ -137,32 +170,21 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
   }
   table { width: 100%; border-collapse: collapse; background: white; }
-
-  thead tr {
-    background: #1a1a2e;
-  }
+  thead tr { background: #1a1a2e; }
   th {
     padding: 13px 16px; text-align: left; font-size: 11.5px;
     font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-    white-space: nowrap; border-bottom: none;
+    white-space: nowrap;
   }
   th:nth-child(1) { width: 100px; color: #a0a8c0; }
   th:nth-child(2) { width: 170px; color: #a0a8c0; }
-  th:nth-child(3) { width: calc(33% - 90px); color: #7ec8e3; }
-  th:nth-child(4) { width: calc(33% - 90px); color: #f4a261; }
-  th:nth-child(5) { width: calc(34% - 90px); color: #74c69d; }
+  th:nth-child(3) { width: calc(33% - 90px); color: #7ec8e3; border-top: 3px solid #0096c7; }
+  th:nth-child(4) { width: calc(33% - 90px); color: #f4a261; border-top: 3px solid #e07b00; }
+  th:nth-child(5) { width: calc(34% - 90px); color: #74c69d; border-top: 3px solid #2d9e5e; }
 
-  /* colored top-border accent on header cells */
-  th:nth-child(3) { border-top: 3px solid #0096c7; }
-  th:nth-child(4) { border-top: 3px solid #e07b00; }
-  th:nth-child(5) { border-top: 3px solid #2d9e5e; }
-
-  tbody tr { transition: background 0.1s; }
   tbody tr:not(:last-child) td { border-bottom: 1px solid #f0f0f0; }
   tbody tr:hover td { background: #fafbfc !important; }
-
   td { padding: 14px 16px; vertical-align: top; font-size: 12.5px; color: #333; }
-
   td:nth-child(3) { background: #f5faff; border-left: 3px solid #0096c7; }
   td:nth-child(4) { background: #fffaf4; border-left: 3px solid #e07b00; }
   td:nth-child(5) { background: #f4fbf7; border-left: 3px solid #2d9e5e; }
@@ -170,47 +192,62 @@
   .ticket-num {
     font-weight: 700; color: #0077b6; font-size: 13px;
     background: #e8f4fd; display: inline-block;
-    padding: 2px 8px; border-radius: 5px; letter-spacing: 0.2px;
+    padding: 2px 8px; border-radius: 5px;
   }
+  .person-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 20px; cursor: pointer;
+    font-size: 12px; font-weight: 600; border: 2px solid transparent;
+    transition: all 0.12s; user-select: none;
+    background: #f0f0f0; color: #555;
+  }
+  .person-chip:hover { opacity: 0.85; }
+  .person-chip.selected { border-color: currentColor; background: white; box-shadow: 0 0 0 2px rgba(0,0,0,0.06); }
+  .person-chip .remove-chip { font-size: 11px; opacity: 0.5; cursor: pointer; margin-left: 2px; }
+  .person-chip .remove-chip:hover { opacity: 1; }
+
+  .added-by-tag {
+    display: inline-block; margin-top: 5px;
+    font-size: 10.5px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; letter-spacing: 0.2px;
+  }
+  .tag-janishia { background: #ede9fe; color: #6d28d9; }
+  .tag-friend   { background: #fce7f3; color: #be185d; }
+  .tag-other    { background: #e8eaed; color: #555; }
   .desc { color: #555; line-height: 1.5; font-size: 12.5px; }
   .response-text, .analysis-text {
     white-space: pre-wrap; line-height: 1.65; color: #2a2a2a;
     font-family: inherit; font-size: 12.5px;
   }
-
   .row-actions { display: flex; gap: 5px; margin-top: 10px; }
   .btn-row {
     font-size: 11px; padding: 3px 9px; border-radius: 5px; cursor: pointer;
     font-family: inherit; font-weight: 500;
     border: 1px solid #e0e0e0; background: white; color: #555;
-    transition: background 0.12s;
   }
-  .btn-row:hover { background: #f4f4f4; }
   .btn-edit { color: #0077b6; border-color: #b3d9f0; }
   .btn-edit:hover { background: #eaf4fb; }
   .btn-delete { color: #c0392b; border-color: #f1b8b4; }
   .btn-delete:hover { background: #fdf2f1; }
 
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px;
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
   .empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 10px; }
 
-  /* ── Modal ── */
+  /* ── Modals ── */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(15,20,40,0.45); backdrop-filter: blur(2px);
-    z-index: 100; align-items: center; justify-content: center;
+    z-index: 200; align-items: center; justify-content: center;
   }
   .modal-overlay.open { display: flex; }
   .modal {
-    background: white; border-radius: 14px; padding: 0;
+    background: white; border-radius: 14px;
     width: 780px; max-width: 96vw; max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
     animation: slideUp 0.18s ease;
   }
+  .settings-modal { width: 520px; }
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -218,18 +255,18 @@
   .modal-header {
     padding: 20px 24px 16px; border-bottom: 1px solid #f0f0f0;
     display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: white; z-index: 1;
   }
   .modal-header h2 { font-size: 15px; font-weight: 700; color: #111; }
   .modal-close {
     width: 28px; height: 28px; border-radius: 7px; border: none;
-    background: #f0f0f0; color: #666; cursor: pointer; font-size: 15px;
+    background: #f0f0f0; color: #666; cursor: pointer; font-size: 14px;
     display: flex; align-items: center; justify-content: center;
   }
   .modal-close:hover { background: #e4e4e4; }
   .modal-body { padding: 20px 24px; }
   .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
   .modal-full { grid-column: 1 / -1; }
-
   .modal label {
     display: block; font-size: 11px; font-weight: 600; color: #888;
     text-transform: uppercase; letter-spacing: 0.5px;
@@ -238,8 +275,8 @@
   .modal input, .modal textarea {
     width: 100%; padding: 9px 11px;
     border: 1.5px solid #e8e8e8; border-radius: 8px;
-    font-size: 13px; font-family: inherit; resize: vertical;
-    transition: border-color 0.15s, box-shadow 0.15s; color: #222;
+    font-size: 13px; font-family: inherit; resize: vertical; color: #222;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
   .modal input:focus, .modal textarea:focus {
     outline: none; border-color: #0096c7;
@@ -249,6 +286,7 @@
   .modal-actions {
     display: flex; gap: 8px; padding: 16px 24px;
     border-top: 1px solid #f0f0f0; justify-content: flex-end;
+    position: sticky; bottom: 0; background: white;
   }
   .btn-save {
     background: linear-gradient(135deg, #0077b6, #0096c7);
@@ -263,6 +301,41 @@
     font-size: 13px; font-family: inherit;
   }
   .btn-cancel:hover { background: #eaeaea; }
+
+  /* Settings specifics */
+  .modal-body p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 10px; }
+  .modal-body ol { font-size: 13px; color: #555; line-height: 2; padding-left: 18px; margin-bottom: 12px; }
+  .modal-body a { color: #0077b6; }
+  .script-code {
+    min-height: 180px; font-family: monospace; font-size: 11.5px;
+    background: #f8f8f8; color: #333; border: 1px solid #ddd;
+    border-radius: 8px; padding: 10px; width: 100%; resize: none;
+  }
+  .url-input-row { display: flex; gap: 8px; }
+  .url-input-row input { flex: 1; }
+  .btn-connect {
+    padding: 9px 16px; background: #2d9e5e; color: white; border: none;
+    border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+    font-family: inherit; white-space: nowrap;
+  }
+  .btn-connect:hover { background: #258050; }
+  .connect-msg { font-size: 12px; margin-top: 8px; min-height: 18px; }
+  .connect-msg.ok { color: #2d9e5e; }
+  .connect-msg.err { color: #e74c3c; }
+  details summary { cursor: pointer; font-size: 12px; font-weight: 600; color: #0077b6; margin-bottom: 6px; user-select: none; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .filter-chip {
+    padding: 4px 14px; border-radius: 20px; border: 1.5px solid #e0e0e0;
+    background: white; font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: inherit; color: #666; transition: all 0.12s;
+  }
+  .filter-chip:hover { border-color: #bbb; background: #f5f5f5; }
+  .filter-chip.active { border-color: currentColor; background: white; box-shadow: 0 0 0 2px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body>
@@ -286,37 +359,55 @@
 
 <!-- Main app -->
 <div id="appContent">
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="page-icon">🎫</div>
-    <div>
-      <div class="page-title">Ticket Response Comparison</div>
-      <div class="page-sub">Compare First.md vs Claude responses side by side</div>
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">🎫</div>
+      <div>
+        <div class="page-title">Ticket Response Comparison</div>
+        <div class="page-sub">Compare First.md vs Claude responses side by side</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <span class="row-count" id="rowCount">0 tickets</span>
+      <button class="btn-secondary" onclick="clearAll()">Clear All</button>
+      <button class="btn-add" onclick="openModal()">＋ Add Ticket</button>
     </div>
   </div>
-  <div class="toolbar">
-    <span class="row-count" id="rowCount">0 tickets</span>
-    <button class="btn-clear" onclick="clearAll()">Clear All</button>
-    <button class="btn-add" onclick="openModal()">＋ Add Ticket</button>
+
+  <!-- Filter bar -->
+  <div class="filter-bar" id="filterBar">
+    <span style="font-size:12px; color:#888; font-weight:500;">Filter by:</span>
+    <button type="button" class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All</button>
   </div>
-</div>
 
-<div class="table-wrap">
-  <table id="compTable">
-    <thead>
-      <tr>
-        <th>Ticket #</th>
-        <th>Description</th>
-        <th>First.md Response</th>
-        <th>Claude Response</th>
-        <th>My Analysis</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-</div>
+  <!-- Sync bar -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncMsg">Not connected to Google Sheets</span>
+    <button class="btn-refresh" onclick="loadFromSheets()">↻ Refresh</button>
+  </div>
 
-<!-- Modal (inside appContent) -->
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket #</th>
+          <th>Description</th>
+          <th>First.md Response</th>
+          <th>Claude Response</th>
+          <th>My Analysis</th>
+          <th style="color:#c084fc; width:90px;">Added By</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div><!-- /appContent -->
+
+<!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
@@ -333,6 +424,15 @@
           <label>Description</label>
           <input type="text" id="f_desc" placeholder="Brief description of the issue...">
         </div>
+        <div class="modal-full" style="margin-top:4px;">
+          <label>Added By</label>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;" id="addedByChips"></div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <input type="text" id="f_addedby_new" placeholder="Type a name and press ＋" style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewPerson();}">
+            <button type="button" onclick="addNewPerson()" style="padding:9px 14px; background:#0096c7; color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700; font-family:inherit;">＋</button>
+          </div>
+          <input type="hidden" id="f_addedby">
+        </div>
         <div class="modal-full">
           <label>First.md Response</label>
           <textarea id="f_first" style="min-height:150px" placeholder="Paste First.md response here..."></textarea>
@@ -348,13 +448,12 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveRow()">Save Ticket</button>
+      <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn-save" onclick="saveRow()">Save Ticket</button>
     </div>
   </div>
 </div>
 
-</div><!-- /appContent -->
 
 <script>
 // ── Auth ──
@@ -370,6 +469,7 @@ function doLogin() {
     document.getElementById('appContent').classList.add('visible');
     err.textContent = '';
     inp.classList.remove('error');
+    init();
   } else {
     err.textContent = 'Incorrect password. Please try again.';
     inp.classList.add('error');
@@ -381,77 +481,243 @@ function doLogin() {
 function togglePw() {
   const inp = document.getElementById('loginInput');
   const btn = document.getElementById('toggleBtn');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-  else { inp.type = 'password'; btn.textContent = '👁'; }
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-// Check session on load
-if (sessionStorage.getItem('auth') === '1') {
-  document.getElementById('loginScreen').classList.remove('visible');
-  document.getElementById('appContent').classList.add('visible');
+// ── Sync ──
+let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaLGD0zZUMENLz1vLUCsd6SOeviAkWrpKfjhU4hIE5-Pc3rLAq4CMyhs1xVwZoa1J0/exec';
+
+function syncDot(state, msg) {
+  document.getElementById('syncDot').className = 'sync-dot ' + state;
+  document.getElementById('syncMsg').textContent = msg;
 }
 
-// ── App ──
+function ts() {
+  return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+async function loadFromSheets() {
+  if (!SCRIPT_URL) { syncDot('', 'Not connected to Google Sheets'); return; }
+  syncDot('syncing', 'Loading from Google Sheets…');
+  try {
+    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
+    const data = await res.json();
+    rows = Array.isArray(data) ? data : [];
+    localStorage.setItem('ticketRows', JSON.stringify(rows));
+    syncDot('ok', 'Synced · ' + ts());
+    render();
+  } catch(e) {
+    syncDot('error', 'Could not reach Google Sheets — showing local data');
+  }
+}
+
+async function saveToSheets() {
+  if (!SCRIPT_URL) return;
+  syncDot('syncing', 'Saving…');
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(rows)
+    });
+    syncDot('ok', 'Saved · ' + ts());
+  } catch(e) {
+    syncDot('error', 'Save failed — kept locally');
+  }
+}
+
+// ── People list ──
+const CHIP_COLORS = [
+  { bg:'#ede9fe', color:'#6d28d9' },
+  { bg:'#fce7f3', color:'#be185d' },
+  { bg:'#d1fae5', color:'#065f46' },
+  { bg:'#fff7ed', color:'#c2410c' },
+  { bg:'#dbeafe', color:'#1d4ed8' },
+  { bg:'#fef9c3', color:'#854d0e' },
+];
+
+let people = JSON.parse(localStorage.getItem('people') || '["Janishia"]');
+
+function getColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return CHIP_COLORS[Math.abs(hash) % CHIP_COLORS.length];
+}
+
+function savePeople() {
+  localStorage.setItem('people', JSON.stringify(people));
+  renderFilterBar();
+}
+
+let activeFilter = 'all';
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = '<span style="font-size:12px; color:#888; font-weight:500;">Filter by:</span>';
+
+  // All chip
+  const all = document.createElement('button');
+  all.type = 'button';
+  all.className = 'filter-chip' + (activeFilter === 'all' ? ' active' : '');
+  all.style.color = '#555';
+  all.textContent = 'All';
+  all.onclick = () => setFilter('all', all);
+  bar.appendChild(all);
+
+  // Per-person chips
+  people.forEach(name => {
+    const c = getColor(name);
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'filter-chip' + (activeFilter === name ? ' active' : '');
+    chip.style.color = c.color;
+    chip.style.borderColor = activeFilter === name ? c.color : '#e0e0e0';
+    chip.style.background = activeFilter === name ? c.bg : 'white';
+    chip.textContent = name;
+    chip.onclick = () => setFilter(name, chip);
+    bar.appendChild(chip);
+  });
+}
+
+function setFilter(name, el) {
+  activeFilter = name;
+  renderFilterBar();
+  render();
+}
+
+function renderChips(selectedName) {
+  const wrap = document.getElementById('addedByChips');
+  wrap.innerHTML = '';
+  people.forEach(name => {
+    const c = getColor(name);
+    const chip = document.createElement('div');
+    chip.className = 'person-chip' + (name === selectedName ? ' selected' : '');
+    chip.style.background = name === selectedName ? 'white' : c.bg;
+    chip.style.color = c.color;
+    chip.style.borderColor = name === selectedName ? c.color : 'transparent';
+    chip.innerHTML = `${name}<span class="remove-chip" title="Remove" onclick="removePerson('${name}', event)">✕</span>`;
+    chip.onclick = (e) => {
+      if (e.target.classList.contains('remove-chip')) return;
+      document.getElementById('f_addedby').value = name;
+      renderChips(name);
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+function addNewPerson() {
+  const inp = document.getElementById('f_addedby_new');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (!people.includes(name)) {
+    people.push(name);
+    savePeople();
+  }
+  document.getElementById('f_addedby').value = name;
+  inp.value = '';
+  renderChips(name);
+}
+
+function removePerson(name, e) {
+  e.stopPropagation();
+  if (name === 'Janishia') return; // protect default
+  people = people.filter(p => p !== name);
+  savePeople();
+  const current = document.getElementById('f_addedby').value;
+  if (current === name) document.getElementById('f_addedby').value = '';
+  renderChips(document.getElementById('f_addedby').value);
+}
+
+
+function updateDropdown() {} // no-op, kept for compat
+
+
+// ── App data ──
 let rows = JSON.parse(localStorage.getItem('ticketRows') || '[]');
 let editIndex = -1;
 
+function init() {
+  renderFilterBar();
+  if (SCRIPT_URL) {
+    document.getElementById('setupBanner').classList.add('hidden');
+    loadFromSheets();
+  } else {
+    render();
+  }
+}
+
 function save() {
   localStorage.setItem('ticketRows', JSON.stringify(rows));
+  saveToSheets();
 }
 
 function render() {
+  renderFilterBar();
   const tbody = document.getElementById('tableBody');
   const count = document.getElementById('rowCount');
-  count.textContent = rows.length === 1 ? '1 ticket' : `${rows.length} tickets`;
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><span class="empty-icon">📋</span>No tickets yet — click <strong>＋ Add Ticket</strong> to get started.</td></tr>';
+  const filtered = rows.map((r, i) => ({r, i})).filter(({r}) => activeFilter === 'all' || (r.addedby || '') === activeFilter);
+  count.textContent = rows.length === 1 ? '1 ticket' : rows.length + ' tickets';
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><span class="empty-icon">${rows.length === 0 ? '📋' : '🔍'}</span>${rows.length === 0 ? 'No tickets yet — click <strong>＋ Add Ticket</strong> to get started.' : `No tickets from <strong>${esc(activeFilter)}</strong> yet.`}</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows.map((r, i) => `
+  tbody.innerHTML = filtered.map(({r, i: realIndex}) => {
+    const who = r.addedby || '';
+    let tagStyle = '';
+    if (who) {
+      const c = getColor(who);
+      tagStyle = `background:${c.bg};color:${c.color};`;
+    }
+    const tag = who ? `<div><span class="added-by-tag" style="${tagStyle}">${esc(who)}</span></div>` : '';
+    return `
     <tr>
       <td>
         <div class="ticket-num">#${esc(r.ticket)}</div>
         <div class="row-actions">
-          <button class="btn-row btn-edit" onclick="editRow(${i})">Edit</button>
-          <button class="btn-row btn-delete" onclick="deleteRow(${i})">Delete</button>
+          <button class="btn-row btn-edit" onclick="editRow(${realIndex})">Edit</button>
+          <button class="btn-row btn-delete" onclick="deleteRow(${realIndex})">Delete</button>
         </div>
       </td>
       <td><span class="desc">${esc(r.desc)}</span></td>
       <td><pre class="response-text">${esc(r.first)}</pre></td>
       <td><pre class="response-text">${esc(r.claude)}</pre></td>
       <td><pre class="analysis-text">${esc(r.analysis || '')}</pre></td>
-    </tr>
-  `).join('');
+      <td>${tag}</td>
+    </tr>`;
+  }).join('');
 }
 
 function esc(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function openModal(idx = -1) {
   editIndex = idx;
-  document.getElementById('modalTitle').textContent = idx === -1 ? 'Add Ticket Row' : 'Edit Row';
+  document.getElementById('modalTitle').textContent = idx === -1 ? 'Add Ticket' : 'Edit Ticket';
   const r = idx === -1 ? {} : rows[idx];
   document.getElementById('f_ticket').value = r.ticket || '';
   document.getElementById('f_desc').value = r.desc || '';
   document.getElementById('f_first').value = r.first || '';
   document.getElementById('f_claude').value = r.claude || '';
   document.getElementById('f_analysis').value = r.analysis || '';
+  document.getElementById('f_addedby').value = r.addedby || '';
+  document.getElementById('f_addedby_new').value = '';
+  renderChips(r.addedby || '');
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('f_ticket').focus();
 }
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 
 function saveRow() {
   const row = {
-    ticket: document.getElementById('f_ticket').value.trim(),
-    desc: document.getElementById('f_desc').value.trim(),
-    first: document.getElementById('f_first').value.trim(),
-    claude: document.getElementById('f_claude').value.trim(),
+    ticket:   document.getElementById('f_ticket').value.trim(),
+    desc:     document.getElementById('f_desc').value.trim(),
+    first:    document.getElementById('f_first').value.trim(),
+    claude:   document.getElementById('f_claude').value.trim(),
     analysis: document.getElementById('f_analysis').value.trim(),
+    addedby:  document.getElementById('f_addedby').value,
   };
   if (!row.ticket) { alert('Please enter a ticket number.'); return; }
   if (editIndex === -1) rows.push(row);
@@ -462,72 +728,25 @@ function saveRow() {
 function editRow(i) { openModal(i); }
 
 function deleteRow(i) {
-  if (!confirm('Delete this row?')) return;
+  if (!confirm('Delete this ticket?')) return;
   rows.splice(i, 1);
   save(); render();
 }
 
 function clearAll() {
-  if (!confirm('Clear all rows?')) return;
+  if (!confirm('Clear all tickets? This will also clear Google Sheets.')) return;
   rows = []; save(); render();
 }
 
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+// Close modals on backdrop click
+document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
 
-// Pre-load the example row
-if (rows.length === 0) {
-  rows.push({
-    ticket: '206245',
-    desc: 'Hi -- I cannot access the page to upgrade the partner tier. What am I doing wrong? Please advise.',
-    first: `Hello Marcelo,
-
-Thanks for reaching out to Intuit Developer Support, and for following up on your earlier conversation about Silver tier access for the Project GraphQL API.
-
-Before reaching the Billing and Subscription page to upgrade, the portal requires a few prerequisites to be in place. Please complete these in order:
-
-1. Sign in to the Intuit Developer Portal: https://developer.intuit.com/dashboard
-2. Accept the latest Developer Terms of Service if prompted
-3. Validate your company address under your profile
-4. Go to Workspaces → Billing and Subscription
-5. Add your payment method and subscribe to the Silver tier
-
-If any of the prerequisite steps (Terms acceptance, address validation) have not been completed, the Billing and Subscription page may not be accessible — that is the most common cause of this error.
-
-A short walkthrough video is also available here: https://www.youtube.com/watch?v=nwHVl8rCMIE
-
-Note: once subscribed, it may take up to one hour for Silver tier benefits and limits to take effect.
-
-If you have already completed all the prerequisites and the page is still not accessible, please reply with:
-- The App ID you are upgrading for
-- A screenshot of the page or error you are seeing
-
-Sincerely, Janishia Noronha
-Intuit Developer Group`,
-    claude: `Hi Marcelo,
-
-Thank you for reaching out. The most common reason for being unable to access the Billing and Subscription page to upgrade your partner tier is that your account may not have Workspace Admin access. Only the Workspace Admin can manage billing and subscriptions.
-
-To upgrade to the Silver Tier, please follow these steps:
-
-1. Sign in to the Intuit Developer Portal at https://developer.intuit.com
-2. Click on "My Hub" at the top right corner.
-3. Select your Workspace.
-4. Navigate to the Billing and Subscription tab.
-5. From there, you should be able to upgrade to the Silver Tier.
-
-If you are seeing an error such as "Please contact your administrator to update billing and subscriptions," it means you need to reach out to the Workspace Admin of your account to either perform the upgrade or grant you admin access.
-
-If you are the only user on your Workspace and are still unable to access the Billing and Subscription page, please share with us a screenshot of the error you are encountering and your App ID so we can investigate further.
-
-Please let us know if you need any further assistance.`
-  });
-  save();
+// Boot
+if (sessionStorage.getItem('auth') === '1') {
+  document.getElementById('loginScreen').classList.remove('visible');
+  document.getElementById('appContent').classList.add('visible');
+  init();
 }
-
-render();
 </script>
 </body>
 </html>
