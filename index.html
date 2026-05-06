@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Response Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f0f2f5;
+    padding: 28px 32px;
+    min-height: 100vh;
+  }
+
+  /* ── Sign-in screen ── */
+  #loginScreen {
+    display: none;
+    position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1a2f4a 50%, #0d1b2a 100%);
+    align-items: center; justify-content: center;
+  }
+  #loginScreen.visible { display: flex; }
+
+  .login-card {
+    background: white; border-radius: 18px; padding: 40px 36px;
+    width: 380px; max-width: 94vw;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    animation: loginIn 0.25s ease;
+  }
+  @keyframes loginIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .login-logo {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #0077b6, #00b4d8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin: 0 auto 20px;
+  }
+  .login-title {
+    font-size: 20px; font-weight: 700; color: #111;
+    text-align: center; letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .login-sub {
+    font-size: 13px; color: #999; text-align: center; margin-bottom: 28px;
+  }
+  .login-label {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: block; margin-bottom: 6px;
+  }
+  .login-input-wrap { position: relative; margin-bottom: 8px; }
+  .login-input {
+    width: 100%; padding: 11px 42px 11px 14px;
+    border: 1.5px solid #e8e8e8; border-radius: 10px;
+    font-size: 14px; font-family: inherit; color: #222;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .login-input:focus {
+    outline: none; border-color: #0096c7;
+    box-shadow: 0 0 0 3px rgba(0,150,199,0.12);
+  }
+  .login-input.error { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.1); }
+  .toggle-pw {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: #aaa; font-size: 16px;
+    padding: 2px;
+  }
+  .toggle-pw:hover { color: #555; }
+  .login-error {
+    font-size: 12px; color: #e74c3c; margin-bottom: 16px;
+    min-height: 16px; text-align: center;
+  }
+  .login-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #0077b6, #0096c7);
+    color: white; font-size: 14px; font-weight: 600; font-family: inherit;
+    cursor: pointer; box-shadow: 0 3px 12px rgba(0,119,182,0.35);
+    transition: box-shadow 0.15s, transform 0.1s;
+  }
+  .login-btn:hover { box-shadow: 0 5px 18px rgba(0,119,182,0.45); transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-footer {
+    text-align: center; font-size: 11.5px; color: #bbb; margin-top: 20px;
+  }
+
+  #appContent { display: none; }
+  #appContent.visible { display: block; }
+
+  /* ── Header ── */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-header-left { display: flex; align-items: center; gap: 12px; }
+  .page-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, #0077b6, #00b4d8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .page-title { font-size: 18px; font-weight: 700; color: #111; letter-spacing: -0.3px; }
+  .page-sub { font-size: 12px; color: #888; margin-top: 1px; }
+
+  /* ── Toolbar ── */
+  .toolbar { display: flex; gap: 8px; align-items: center; }
+  .btn-add {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 600; font-family: inherit;
+    background: linear-gradient(135deg, #0077b6, #0096c7);
+    color: white; box-shadow: 0 2px 8px rgba(0,119,182,0.35);
+    transition: box-shadow 0.15s, transform 0.1s;
+  }
+  .btn-add:hover { box-shadow: 0 4px 14px rgba(0,119,182,0.45); transform: translateY(-1px); }
+  .btn-add:active { transform: translateY(0); }
+  .btn-clear {
+    padding: 8px 14px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 500; font-family: inherit;
+    background: white; color: #555;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-clear:hover { background: #fafafa; border-color: #bbb; }
+
+  /* ── Row count badge ── */
+  .row-count {
+    font-size: 12px; color: #888; margin-left: 4px;
+    background: #e8eaed; padding: 3px 9px; border-radius: 20px; font-weight: 500;
+  }
+
+  /* ── Table ── */
+  .table-wrap {
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  }
+  table { width: 100%; border-collapse: collapse; background: white; }
+
+  thead tr {
+    background: #1a1a2e;
+  }
+  th {
+    padding: 13px 16px; text-align: left; font-size: 11.5px;
+    font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+    white-space: nowrap; border-bottom: none;
+  }
+  th:nth-child(1) { width: 100px; color: #a0a8c0; }
+  th:nth-child(2) { width: 170px; color: #a0a8c0; }
+  th:nth-child(3) { width: calc(33% - 90px); color: #7ec8e3; }
+  th:nth-child(4) { width: calc(33% - 90px); color: #f4a261; }
+  th:nth-child(5) { width: calc(34% - 90px); color: #74c69d; }
+
+  /* colored top-border accent on header cells */
+  th:nth-child(3) { border-top: 3px solid #0096c7; }
+  th:nth-child(4) { border-top: 3px solid #e07b00; }
+  th:nth-child(5) { border-top: 3px solid #2d9e5e; }
+
+  tbody tr { transition: background 0.1s; }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid #f0f0f0; }
+  tbody tr:hover td { background: #fafbfc !important; }
+
+  td { padding: 14px 16px; vertical-align: top; font-size: 12.5px; color: #333; }
+
+  td:nth-child(3) { background: #f5faff; border-left: 3px solid #0096c7; }
+  td:nth-child(4) { background: #fffaf4; border-left: 3px solid #e07b00; }
+  td:nth-child(5) { background: #f4fbf7; border-left: 3px solid #2d9e5e; }
+
+  .ticket-num {
+    font-weight: 700; color: #0077b6; font-size: 13px;
+    background: #e8f4fd; display: inline-block;
+    padding: 2px 8px; border-radius: 5px; letter-spacing: 0.2px;
+  }
+  .desc { color: #555; line-height: 1.5; font-size: 12.5px; }
+  .response-text, .analysis-text {
+    white-space: pre-wrap; line-height: 1.65; color: #2a2a2a;
+    font-family: inherit; font-size: 12.5px;
+  }
+
+  .row-actions { display: flex; gap: 5px; margin-top: 10px; }
+  .btn-row {
+    font-size: 11px; padding: 3px 9px; border-radius: 5px; cursor: pointer;
+    font-family: inherit; font-weight: 500;
+    border: 1px solid #e0e0e0; background: white; color: #555;
+    transition: background 0.12s;
+  }
+  .btn-row:hover { background: #f4f4f4; }
+  .btn-edit { color: #0077b6; border-color: #b3d9f0; }
+  .btn-edit:hover { background: #eaf4fb; }
+  .btn-delete { color: #c0392b; border-color: #f1b8b4; }
+  .btn-delete:hover { background: #fdf2f1; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px;
+  }
+  .empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,20,40,0.45); backdrop-filter: blur(2px);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 14px; padding: 0;
+    width: 780px; max-width: 96vw; max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    animation: slideUp 0.18s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .modal-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h2 { font-size: 15px; font-weight: 700; color: #111; }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 7px; border: none;
+    background: #f0f0f0; color: #666; cursor: pointer; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: #e4e4e4; }
+  .modal-body { padding: 20px 24px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .modal-full { grid-column: 1 / -1; }
+
+  .modal label {
+    display: block; font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 5px; margin-top: 16px;
+  }
+  .modal input, .modal textarea {
+    width: 100%; padding: 9px 11px;
+    border: 1.5px solid #e8e8e8; border-radius: 8px;
+    font-size: 13px; font-family: inherit; resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s; color: #222;
+  }
+  .modal input:focus, .modal textarea:focus {
+    outline: none; border-color: #0096c7;
+    box-shadow: 0 0 0 3px rgba(0,150,199,0.12);
+  }
+  .modal textarea { min-height: 120px; }
+  .modal-actions {
+    display: flex; gap: 8px; padding: 16px 24px;
+    border-top: 1px solid #f0f0f0; justify-content: flex-end;
+  }
+  .btn-save {
+    background: linear-gradient(135deg, #0077b6, #0096c7);
+    color: white; padding: 9px 22px; border: none; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit;
+    box-shadow: 0 2px 8px rgba(0,119,182,0.3);
+  }
+  .btn-save:hover { box-shadow: 0 4px 14px rgba(0,119,182,0.4); }
+  .btn-cancel {
+    background: #f4f4f4; color: #555; padding: 9px 16px;
+    border: none; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-family: inherit;
+  }
+  .btn-cancel:hover { background: #eaeaea; }
+</style>
+</head>
+<body>
+
+<!-- Sign-in screen -->
+<div id="loginScreen" class="visible">
+  <div class="login-card">
+    <div class="login-logo">🎫</div>
+    <div class="login-title">Ticket Comparison</div>
+    <div class="login-sub">Enter the password to continue</div>
+    <label class="login-label">Password</label>
+    <div class="login-input-wrap">
+      <input class="login-input" type="password" id="loginInput" placeholder="Enter password…" onkeydown="if(event.key==='Enter') doLogin()">
+      <button class="toggle-pw" onclick="togglePw()" tabindex="-1" id="toggleBtn">👁</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-footer">Access restricted to authorised users only</div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="appContent">
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">🎫</div>
+    <div>
+      <div class="page-title">Ticket Response Comparison</div>
+      <div class="page-sub">Compare First.md vs Claude responses side by side</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <span class="row-count" id="rowCount">0 tickets</span>
+    <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    <button class="btn-add" onclick="openModal()">＋ Add Ticket</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table id="compTable">
+    <thead>
+      <tr>
+        <th>Ticket #</th>
+        <th>Description</th>
+        <th>First.md Response</th>
+        <th>Claude Response</th>
+        <th>My Analysis</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<!-- Modal (inside appContent) -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add Ticket</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div>
+          <label>Ticket Number</label>
+          <input type="text" id="f_ticket" placeholder="e.g. 206245">
+        </div>
+        <div>
+          <label>Description</label>
+          <input type="text" id="f_desc" placeholder="Brief description of the issue...">
+        </div>
+        <div class="modal-full">
+          <label>First.md Response</label>
+          <textarea id="f_first" style="min-height:150px" placeholder="Paste First.md response here..."></textarea>
+        </div>
+        <div class="modal-full">
+          <label>Claude Response</label>
+          <textarea id="f_claude" style="min-height:150px" placeholder="Paste Claude response here..."></textarea>
+        </div>
+        <div class="modal-full">
+          <label>My Analysis</label>
+          <textarea id="f_analysis" style="min-height:90px" placeholder="Your notes — which response is better and why..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveRow()">Save Ticket</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /appContent -->
+
+<script>
+// ── Auth ──
+const PASSWORD = 'salesforce';
+
+function doLogin() {
+  const val = document.getElementById('loginInput').value;
+  const inp = document.getElementById('loginInput');
+  const err = document.getElementById('loginError');
+  if (val === PASSWORD) {
+    sessionStorage.setItem('auth', '1');
+    document.getElementById('loginScreen').classList.remove('visible');
+    document.getElementById('appContent').classList.add('visible');
+    err.textContent = '';
+    inp.classList.remove('error');
+  } else {
+    err.textContent = 'Incorrect password. Please try again.';
+    inp.classList.add('error');
+    inp.value = '';
+    inp.focus();
+  }
+}
+
+function togglePw() {
+  const inp = document.getElementById('loginInput');
+  const btn = document.getElementById('toggleBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+// Check session on load
+if (sessionStorage.getItem('auth') === '1') {
+  document.getElementById('loginScreen').classList.remove('visible');
+  document.getElementById('appContent').classList.add('visible');
+}
+
+// ── App ──
+let rows = JSON.parse(localStorage.getItem('ticketRows') || '[]');
+let editIndex = -1;
+
+function save() {
+  localStorage.setItem('ticketRows', JSON.stringify(rows));
+}
+
+function render() {
+  const tbody = document.getElementById('tableBody');
+  const count = document.getElementById('rowCount');
+  count.textContent = rows.length === 1 ? '1 ticket' : `${rows.length} tickets`;
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><span class="empty-icon">📋</span>No tickets yet — click <strong>＋ Add Ticket</strong> to get started.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td>
+        <div class="ticket-num">#${esc(r.ticket)}</div>
+        <div class="row-actions">
+          <button class="btn-row btn-edit" onclick="editRow(${i})">Edit</button>
+          <button class="btn-row btn-delete" onclick="deleteRow(${i})">Delete</button>
+        </div>
+      </td>
+      <td><span class="desc">${esc(r.desc)}</span></td>
+      <td><pre class="response-text">${esc(r.first)}</pre></td>
+      <td><pre class="response-text">${esc(r.claude)}</pre></td>
+      <td><pre class="analysis-text">${esc(r.analysis || '')}</pre></td>
+    </tr>
+  `).join('');
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function openModal(idx = -1) {
+  editIndex = idx;
+  document.getElementById('modalTitle').textContent = idx === -1 ? 'Add Ticket Row' : 'Edit Row';
+  const r = idx === -1 ? {} : rows[idx];
+  document.getElementById('f_ticket').value = r.ticket || '';
+  document.getElementById('f_desc').value = r.desc || '';
+  document.getElementById('f_first').value = r.first || '';
+  document.getElementById('f_claude').value = r.claude || '';
+  document.getElementById('f_analysis').value = r.analysis || '';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('f_ticket').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveRow() {
+  const row = {
+    ticket: document.getElementById('f_ticket').value.trim(),
+    desc: document.getElementById('f_desc').value.trim(),
+    first: document.getElementById('f_first').value.trim(),
+    claude: document.getElementById('f_claude').value.trim(),
+    analysis: document.getElementById('f_analysis').value.trim(),
+  };
+  if (!row.ticket) { alert('Please enter a ticket number.'); return; }
+  if (editIndex === -1) rows.push(row);
+  else rows[editIndex] = row;
+  save(); render(); closeModal();
+}
+
+function editRow(i) { openModal(i); }
+
+function deleteRow(i) {
+  if (!confirm('Delete this row?')) return;
+  rows.splice(i, 1);
+  save(); render();
+}
+
+function clearAll() {
+  if (!confirm('Clear all rows?')) return;
+  rows = []; save(); render();
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Pre-load the example row
+if (rows.length === 0) {
+  rows.push({
+    ticket: '206245',
+    desc: 'Hi -- I cannot access the page to upgrade the partner tier. What am I doing wrong? Please advise.',
+    first: `Hello Marcelo,
+
+Thanks for reaching out to Intuit Developer Support, and for following up on your earlier conversation about Silver tier access for the Project GraphQL API.
+
+Before reaching the Billing and Subscription page to upgrade, the portal requires a few prerequisites to be in place. Please complete these in order:
+
+1. Sign in to the Intuit Developer Portal: https://developer.intuit.com/dashboard
+2. Accept the latest Developer Terms of Service if prompted
+3. Validate your company address under your profile
+4. Go to Workspaces → Billing and Subscription
+5. Add your payment method and subscribe to the Silver tier
+
+If any of the prerequisite steps (Terms acceptance, address validation) have not been completed, the Billing and Subscription page may not be accessible — that is the most common cause of this error.
+
+A short walkthrough video is also available here: https://www.youtube.com/watch?v=nwHVl8rCMIE
+
+Note: once subscribed, it may take up to one hour for Silver tier benefits and limits to take effect.
+
+If you have already completed all the prerequisites and the page is still not accessible, please reply with:
+- The App ID you are upgrading for
+- A screenshot of the page or error you are seeing
+
+Sincerely, Janishia Noronha
+Intuit Developer Group`,
+    claude: `Hi Marcelo,
+
+Thank you for reaching out. The most common reason for being unable to access the Billing and Subscription page to upgrade your partner tier is that your account may not have Workspace Admin access. Only the Workspace Admin can manage billing and subscriptions.
+
+To upgrade to the Silver Tier, please follow these steps:
+
+1. Sign in to the Intuit Developer Portal at https://developer.intuit.com
+2. Click on "My Hub" at the top right corner.
+3. Select your Workspace.
+4. Navigate to the Billing and Subscription tab.
+5. From there, you should be able to upgrade to the Silver Tier.
+
+If you are seeing an error such as "Please contact your administrator to update billing and subscriptions," it means you need to reach out to the Workspace Admin of your account to either perform the upgrade or grant you admin access.
+
+If you are the only user on your Workspace and are still unable to access the Billing and Subscription page, please share with us a screenshot of the error you are encountering and your App ID so we can investigate further.
+
+Please let us know if you need any further assistance.`
+  });
+  save();
+}
+
+render();
+</script>
+</body>
+</html>
