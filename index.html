@@ -166,8 +166,9 @@
 
   /* ── Table ── */
   .table-wrap {
-    border-radius: 12px; overflow: hidden;
+    border-radius: 12px; overflow: auto;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+    max-height: calc(100vh - 220px);
   }
   table { width: 100%; border-collapse: collapse; background: white; }
   thead tr { background: #1a1a2e; }
@@ -175,6 +176,7 @@
     padding: 13px 16px; text-align: left; font-size: 11.5px;
     font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
     white-space: nowrap;
+    position: sticky; top: 0; z-index: 2; background: #1a1a2e;
   }
   th:nth-child(1) { width: 100px; color: #a0a8c0; }
   th:nth-child(2) { width: 170px; color: #a0a8c0; }
@@ -229,6 +231,18 @@
   .btn-edit:hover { background: #eaf4fb; }
   .btn-delete { color: #c0392b; border-color: #f1b8b4; }
   .btn-delete:hover { background: #fdf2f1; }
+
+  /* ── Copy button ── */
+  .cell-wrap { position: relative; padding-right: 52px; }
+  .btn-copy {
+    position: absolute; top: 0; right: 0;
+    font-size: 11px; padding: 3px 7px; border-radius: 5px; cursor: pointer;
+    font-family: inherit; font-weight: 500; opacity: 0;
+    border: 1px solid #ddd; background: white; color: #666;
+    transition: opacity 0.15s; white-space: nowrap;
+  }
+  .btn-copy.copied { color: #2d9e5e; border-color: #2d9e5e; background: #f4fbf7; }
+  .cell-wrap:hover .btn-copy { opacity: 1; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
   .empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 10px; }
@@ -376,10 +390,7 @@
   </div>
 
   <!-- Filter bar -->
-  <div class="filter-bar" id="filterBar">
-    <span style="font-size:12px; color:#888; font-weight:500;">Filter by:</span>
-    <button type="button" class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All</button>
-  </div>
+  <div class="filter-bar" id="filterBar"></div>
 
   <!-- Sync bar -->
   <div class="sync-bar">
@@ -506,6 +517,7 @@ async function loadFromSheets() {
     rows = Array.isArray(data) ? data : [];
     localStorage.setItem('ticketRows', JSON.stringify(rows));
     syncDot('ok', 'Synced · ' + ts());
+    renderFilterBar();
     render();
   } catch(e) {
     syncDot('error', 'Could not reach Google Sheets — showing local data');
@@ -557,13 +569,17 @@ function renderFilterBar() {
   const bar = document.getElementById('filterBar');
   bar.innerHTML = '<span style="font-size:12px; color:#888; font-weight:500;">Filter by:</span>';
 
+  // Merge people list with any names found in actual row data
+  const namesInRows = [...new Set(rows.map(r => r.addedby || '').filter(Boolean))];
+  namesInRows.forEach(n => { if (!people.includes(n)) { people.push(n); savePeople(); } });
+
   // All chip
   const all = document.createElement('button');
   all.type = 'button';
   all.className = 'filter-chip' + (activeFilter === 'all' ? ' active' : '');
   all.style.color = '#555';
   all.textContent = 'All';
-  all.onclick = () => setFilter('all', all);
+  all.onclick = () => setFilter('all');
   bar.appendChild(all);
 
   // Per-person chips
@@ -576,14 +592,13 @@ function renderFilterBar() {
     chip.style.borderColor = activeFilter === name ? c.color : '#e0e0e0';
     chip.style.background = activeFilter === name ? c.bg : 'white';
     chip.textContent = name;
-    chip.onclick = () => setFilter(name, chip);
+    chip.onclick = () => setFilter(name);
     bar.appendChild(chip);
   });
 }
 
-function setFilter(name, el) {
+function setFilter(name) {
   activeFilter = name;
-  renderFilterBar();
   render();
 }
 
@@ -639,11 +654,10 @@ let rows = JSON.parse(localStorage.getItem('ticketRows') || '[]');
 let editIndex = -1;
 
 function init() {
-  renderFilterBar();
   if (SCRIPT_URL) {
-    document.getElementById('setupBanner').classList.add('hidden');
     loadFromSheets();
   } else {
+    renderFilterBar();
     render();
   }
 }
@@ -654,7 +668,6 @@ function save() {
 }
 
 function render() {
-  renderFilterBar();
   const tbody = document.getElementById('tableBody');
   const count = document.getElementById('rowCount');
   const filtered = rows.map((r, i) => ({r, i})).filter(({r}) => activeFilter === 'all' || (r.addedby || '') === activeFilter);
@@ -680,9 +693,9 @@ function render() {
           <button class="btn-row btn-delete" onclick="deleteRow(${realIndex})">Delete</button>
         </div>
       </td>
-      <td><span class="desc">${esc(r.desc)}</span></td>
-      <td><pre class="response-text">${esc(r.first)}</pre></td>
-      <td><pre class="response-text">${esc(r.claude)}</pre></td>
+      <td><div class="cell-wrap"><span class="desc">${esc(r.desc)}</span><button class="btn-copy" onclick="copyText(this, ${realIndex}, 'desc')">Copy</button></div></td>
+      <td><div class="cell-wrap"><pre class="response-text">${esc(r.first)}</pre><button class="btn-copy" onclick="copyText(this, ${realIndex}, 'first')">Copy</button></div></td>
+      <td><div class="cell-wrap"><pre class="response-text">${esc(r.claude)}</pre><button class="btn-copy" onclick="copyText(this, ${realIndex}, 'claude')">Copy</button></div></td>
       <td><pre class="analysis-text">${esc(r.analysis || '')}</pre></td>
       <td>${tag}</td>
     </tr>`;
@@ -691,6 +704,15 @@ function render() {
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyText(btn, idx, field) {
+  const text = rows[idx][field] || '';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
 }
 
 function openModal(idx = -1) {
